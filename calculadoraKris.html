@@ -1,0 +1,213 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Calculadora estilo Google</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #fefae0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header, footer {
+      width: 100%;
+      background-color: #f9c74f;
+      color: #386641;
+      text-align: center;
+      padding: 10px 0;
+      font-weight: bold;
+    }
+
+    .calculator {
+      background: #ffffff;
+      margin-top: 20px;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      max-width: 320px;
+      width: 100%;
+      border: 2px solid #f9c74f;
+    }
+
+    .display {
+      background-color: #e9f5db;
+      padding: 15px;
+      border-radius: 8px;
+      font-size: 20px;
+      margin-bottom: 15px;
+      text-align: right;
+      color: #2a9d8f;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .buttons button {
+      padding: 20px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      background-color: #fdfd96;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      color: #2f3e46;
+    }
+
+    .buttons button:hover {
+      background-color: #fff07c;
+    }
+
+    .btn-equal {
+      grid-column: span 2;
+      background-color: #90be6d;
+      color: white;
+    }
+
+    .btn-clear {
+      background-color: #f94144;
+      color: white;
+    }
+
+    .result, .history {
+      margin-top: 15px;
+      text-align: center;
+    }
+
+    .history {
+      max-height: 150px;
+      overflow-y: auto;
+      background: #fffadd;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #f9c74f;
+    }
+  </style>
+</head>
+<body>
+  <header> Mi Calculadora</header>
+
+  <div class="calculator">
+    <div class="display" id="display">0</div>
+    <div class="buttons">
+      <button onclick="appendNumber('7')">7</button>
+      <button onclick="appendNumber('8')">8</button>
+      <button onclick="appendNumber('9')">9</button>
+      <button onclick="setOperator('/')">÷</button>
+
+      <button onclick="appendNumber('4')">4</button>
+      <button onclick="appendNumber('5')">5</button>
+      <button onclick="appendNumber('6')">6</button>
+      <button onclick="setOperator('*')">×</button>
+
+      <button onclick="appendNumber('1')">1</button>
+      <button onclick="appendNumber('2')">2</button>
+      <button onclick="appendNumber('3')">3</button>
+      <button onclick="setOperator('-')">−</button>
+
+      <button onclick="appendNumber('0')">0</button>
+      <button onclick="clearDisplay()" class="btn-clear">C</button>
+      <button onclick="calculate()" class="btn-equal">=</button>
+      <button onclick="setOperator('+')">+</button>
+    </div>
+
+    <div class="result" id="resultado"></div>
+    <h3>Historial</h3>
+    <div class="history" id="historial"></div>
+    <button class="btn-clear" onclick="borrarHistorial()">Borrar Historial</button>
+  </div>
+
+  <footer>(C) krisangel suarez asuncion</footer>
+
+  <script>
+    let currentInput = '';
+    let operator = '';
+    let firstNumber = null;
+
+    function appendNumber(num) {
+      if (currentInput === '0') currentInput = '';
+      currentInput += num;
+      updateDisplay(currentInput);
+    }
+
+    function setOperator(op) {
+      if (currentInput === '') return;
+      firstNumber = parseFloat(currentInput);
+      operator = op;
+      currentInput = '';
+    }
+
+    function updateDisplay(content) {
+      document.getElementById('display').innerText = content;
+    }
+
+    function clearDisplay() {
+      currentInput = '';
+      operator = '';
+      firstNumber = null;
+      updateDisplay('0');
+      document.getElementById('resultado').innerText = '';
+    }
+
+    function calculate() {
+      if (operator === '' || currentInput === '') return;
+      let secondNumber = parseFloat(currentInput);
+      let result;
+
+      switch (operator) {
+        case '+': result = firstNumber + secondNumber; break;
+        case '-': result = firstNumber - secondNumber; break;
+        case '*': result = firstNumber * secondNumber; break;
+        case '/':
+          if (secondNumber === 0) {
+            alert("No se puede dividir por cero.");
+            return;
+          }
+          result = firstNumber / secondNumber;
+          break;
+      }
+
+      let operacion = `${firstNumber} ${operator} ${secondNumber} = ${result}`;
+      document.getElementById('resultado').innerText = 'Resultado: ' + result;
+      updateDisplay(result);
+      guardarEnHistorial(operacion);
+
+      currentInput = result.toString();
+      firstNumber = null;
+      operator = '';
+    }
+
+    function guardarEnHistorial(operacion) {
+      var historial = JSON.parse(localStorage.getItem('historial')) || [];
+      historial.push(operacion);
+      localStorage.setItem('historial', JSON.stringify(historial));
+      mostrarHistorial();
+    }
+
+    function mostrarHistorial() {
+      var historial = JSON.parse(localStorage.getItem('historial')) || [];
+      var historialDiv = document.getElementById('historial');
+      historialDiv.innerHTML = '';
+      for (var i = 0; i < historial.length; i++) {
+        var p = document.createElement('p');
+        p.textContent = historial[i];
+        historialDiv.appendChild(p);
+      }
+    }
+
+    function borrarHistorial() {
+      localStorage.removeItem('historial');
+      mostrarHistorial();
+    }
+
+    mostrarHistorial();
+  </script>
+</body>
+</html>
